@@ -1,42 +1,43 @@
 # Quick Start Guide 🚀
 
-## The Simplest Way to Use This App
+## ⚡ Fastest Way to Start (Recommended)
 
-### Option 1: Use Without Background Removal (Instant!) ⚡
+### Use Without Background Removal
 
-**Perfect for getting started right away:**
+**Works instantly - NO setup needed!**
 
-1. **Leave the checkbox UNCHECKED**
+1. **Leave the checkbox UNCHECKED** (default)
 2. **Upload your product photo**
 3. **Add your logo** (top-left)
 4. **Add price badge** (bottom-right)
 5. **Add border** (optional)
 6. **Save and download!**
 
-✅ Works instantly - no setup needed
+✅ Takes 10 seconds
 ✅ No API keys required
-✅ Perfect for products with plain backgrounds already
+✅ Zero configuration
 
 ---
 
-## Option 2: Add White Background Manually 🎨
+## 🎨 If You Need Background Removal
 
-**If you need a white background:**
+### Option 1: Use Remove.bg Website (Manual)
 
-Before uploading:
-1. Use free online tools:
-   - https://www.remove.bg (50 free per month)
-   - https://www.photoroom.com
-   - Photoshop / GIMP (manual)
-2. Save the image with transparent/white background
-3. Upload to this app
-4. Add logo, price, borders
+1. Go to https://www.remove.bg
+2. Upload your product photo
+3. Download the result (50 free per month)
+4. Upload to this app
+5. Add logo, price, borders
+
+**Alternative online tools:**
+- https://www.photoroom.com
+- Photoshop / Photopea / GIMP (manual)
 
 ---
 
-## Option 3: Use Remove.bg API (Best Quality) ⭐
+### Option 2: Use Remove.bg API (Automatic) ⭐
 
-**For automatic, professional background removal:**
+**For automatic background removal in the app:**
 
 ### Step 1: Get API Key (Free)
 1. Go to https://www.remove.bg/api

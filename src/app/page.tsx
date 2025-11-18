@@ -6,7 +6,6 @@ import ImageEditor, { EditorSettings } from '@/components/ImageEditor'
 import PostsDashboard from '@/components/PostsDashboard'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { removeBackgroundAndAddWhite } from '@/lib/backgroundRemoval'
 import { removeBackgroundAndAddWhiteAPI } from '@/lib/removeBgApi'
 import { createPost, uploadImageFromDataUrl, updatePost } from '@/lib/api/posts'
 import { Loader2, Image as ImageIcon } from 'lucide-react'
@@ -32,35 +31,21 @@ export default function Home() {
     setIsProcessing(true)
 
     try {
-      console.log('Starting background removal process...')
-
-      let processed: string
-
-      // Try API method first (if configured)
       const hasApiKey = !!process.env.NEXT_PUBLIC_REMOVEBG_API_KEY
 
-      if (hasApiKey) {
-        console.log('Attempting Remove.bg API method...')
-        try {
-          processed = await removeBackgroundAndAddWhiteAPI(imageUrl)
-          console.log('Remove.bg API successful!')
-        } catch (apiError) {
-          console.warn('Remove.bg API failed, falling back to browser AI:', apiError)
-          console.log('Using browser-based AI instead...')
-          processed = await removeBackgroundAndAddWhite(imageUrl)
-          console.log('Browser AI background removal successful!')
-        }
-      } else {
-        console.log('No API key found, using browser-based AI...')
-        processed = await removeBackgroundAndAddWhite(imageUrl)
-        console.log('Browser AI background removal successful!')
+      if (!hasApiKey) {
+        throw new Error('Remove.bg API key is required. Add NEXT_PUBLIC_REMOVEBG_API_KEY to .env.local')
       }
+
+      console.log('Starting Remove.bg API background removal...')
+      const processed = await removeBackgroundAndAddWhiteAPI(imageUrl)
+      console.log('Background removal successful!')
 
       setProcessedImage(processed)
     } catch (error) {
-      console.error('All background removal methods failed:', error)
+      console.error('Background removal failed:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      alert(`❌ Background removal failed!\n\n${errorMessage}\n\n✅ SOLUTION:\n1. Uncheck "Remove Background" and use app instantly\n2. OR: Get free Remove.bg API key (see QUICK-START.md)\n3. OR: Use remove.bg website manually first\n\nFor now, using your original image.`)
+      alert(`❌ Background removal requires Remove.bg API key!\n\n${errorMessage}\n\n✅ HOW TO FIX:\n\n1. Go to https://www.remove.bg/api\n2. Sign up (FREE - 50 images/month)\n3. Copy your API key\n4. Create .env.local file with:\n   NEXT_PUBLIC_REMOVEBG_API_KEY=your-key-here\n5. Restart: npm run dev\n\nOr simply uncheck "Remove Background" and use the app instantly!`)
       setProcessedImage(imageUrl)
     } finally {
       setIsProcessing(false)
@@ -145,28 +130,22 @@ export default function Home() {
   const handleRemoveBackground = async () => {
     if (!currentImage) return
 
+    const hasApiKey = !!process.env.NEXT_PUBLIC_REMOVEBG_API_KEY
+
+    if (!hasApiKey) {
+      alert(`❌ Remove.bg API key required!\n\n✅ HOW TO GET IT:\n\n1. Go to https://www.remove.bg/api\n2. Sign up (FREE - 50 images/month)\n3. Copy your API key\n4. Create .env.local file:\n   NEXT_PUBLIC_REMOVEBG_API_KEY=your-key-here\n5. Restart: npm run dev\n\nThen this button will work!`)
+      return
+    }
+
     setIsProcessing(true)
     setProcessedImage(null) // Clear current preview
 
     try {
-      let processed: string
-      const hasApiKey = !!process.env.NEXT_PUBLIC_REMOVEBG_API_KEY
-
-      if (hasApiKey) {
-        try {
-          processed = await removeBackgroundAndAddWhiteAPI(currentImage)
-        } catch (apiError) {
-          console.warn('API failed, using browser AI:', apiError)
-          processed = await removeBackgroundAndAddWhite(currentImage)
-        }
-      } else {
-        processed = await removeBackgroundAndAddWhite(currentImage)
-      }
-
+      const processed = await removeBackgroundAndAddWhiteAPI(currentImage)
       setProcessedImage(processed)
     } catch (error) {
       console.error('Failed to process image:', error)
-      alert('Failed to remove background. Please try again or get a Remove.bg API key.')
+      alert('Background removal failed. Check your API key is correct and you have quota remaining.')
       setProcessedImage(currentImage) // Restore original on error
     } finally {
       setIsProcessing(false)
