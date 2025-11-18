@@ -31,12 +31,15 @@ export default function Home() {
     setIsProcessing(true)
 
     try {
+      console.log('Starting background removal process...')
       // Remove background and add white background (slow AI process)
       const processed = await removeBackgroundAndAddWhite(imageUrl)
+      console.log('Background removal successful!')
       setProcessedImage(processed)
     } catch (error) {
       console.error('Failed to process image:', error)
-      alert('Failed to process image. Using original instead.')
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      alert(`Failed to process image: ${errorMessage}\n\nUsing original image instead. Check browser console for details.`)
       setProcessedImage(imageUrl)
     } finally {
       setIsProcessing(false)
