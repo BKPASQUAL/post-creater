@@ -41,6 +41,20 @@ cd post-creater
 npm install
 ```
 
+**Windows Users:** If you encounter an SWC binary error when running `npm run dev`, run the fix script:
+
+```powershell
+.\fix-windows.ps1
+```
+
+Or manually install the WebAssembly fallback:
+
+```bash
+npm install --save-dev @next/swc-wasm-nodejs
+```
+
+See [WINDOWS-FIX.md](WINDOWS-FIX.md) for detailed troubleshooting.
+
 ### 3. Set Up Supabase
 
 1. Create a new project at [supabase.com](https://supabase.com)
