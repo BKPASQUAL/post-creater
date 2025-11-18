@@ -7,6 +7,7 @@ import PostsDashboard from '@/components/PostsDashboard'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { removeBackgroundAndAddWhite } from '@/lib/backgroundRemoval'
+import { removeBackgroundAndAddWhiteAPI } from '@/lib/removeBgApi'
 import { createPost, uploadImageFromDataUrl, updatePost } from '@/lib/api/posts'
 import { Loader2, Image as ImageIcon } from 'lucide-react'
 import type { Post } from '@/types/database'
@@ -17,7 +18,7 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [activeTab, setActiveTab] = useState('create')
   const [editingPost, setEditingPost] = useState<Post | null>(null)
-  const [useBackgroundRemoval, setUseBackgroundRemoval] = useState(true) // Enable by default
+  const [useBackgroundRemoval, setUseBackgroundRemoval] = useState(false) // Disabled by default for speed
 
   const handleImageCapture = async (imageUrl: string, skipProcessing: boolean = false) => {
     setCurrentImage(imageUrl)
@@ -32,14 +33,34 @@ export default function Home() {
 
     try {
       console.log('Starting background removal process...')
-      // Remove background and add white background (slow AI process)
-      const processed = await removeBackgroundAndAddWhite(imageUrl)
-      console.log('Background removal successful!')
+
+      let processed: string
+
+      // Try API method first (if configured)
+      const hasApiKey = !!process.env.NEXT_PUBLIC_REMOVEBG_API_KEY
+
+      if (hasApiKey) {
+        console.log('Attempting Remove.bg API method...')
+        try {
+          processed = await removeBackgroundAndAddWhiteAPI(imageUrl)
+          console.log('Remove.bg API successful!')
+        } catch (apiError) {
+          console.warn('Remove.bg API failed, falling back to browser AI:', apiError)
+          console.log('Using browser-based AI instead...')
+          processed = await removeBackgroundAndAddWhite(imageUrl)
+          console.log('Browser AI background removal successful!')
+        }
+      } else {
+        console.log('No API key found, using browser-based AI...')
+        processed = await removeBackgroundAndAddWhite(imageUrl)
+        console.log('Browser AI background removal successful!')
+      }
+
       setProcessedImage(processed)
     } catch (error) {
-      console.error('Failed to process image:', error)
+      console.error('All background removal methods failed:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      alert(`Failed to process image: ${errorMessage}\n\nUsing original image instead. Check browser console for details.`)
+      alert(`Background removal failed: ${errorMessage}\n\nUsing original image. You can:\n1. Get a Remove.bg API key for better results\n2. Try a different image\n3. Uncheck background removal for instant uploads`)
       setProcessedImage(imageUrl)
     } finally {
       setIsProcessing(false)
@@ -128,11 +149,24 @@ export default function Home() {
     setProcessedImage(null) // Clear current preview
 
     try {
-      const processed = await removeBackgroundAndAddWhite(currentImage)
+      let processed: string
+      const hasApiKey = !!process.env.NEXT_PUBLIC_REMOVEBG_API_KEY
+
+      if (hasApiKey) {
+        try {
+          processed = await removeBackgroundAndAddWhiteAPI(currentImage)
+        } catch (apiError) {
+          console.warn('API failed, using browser AI:', apiError)
+          processed = await removeBackgroundAndAddWhite(currentImage)
+        }
+      } else {
+        processed = await removeBackgroundAndAddWhite(currentImage)
+      }
+
       setProcessedImage(processed)
     } catch (error) {
       console.error('Failed to process image:', error)
-      alert('Failed to remove background. Please try again.')
+      alert('Failed to remove background. Please try again or get a Remove.bg API key.')
       setProcessedImage(currentImage) // Restore original on error
     } finally {
       setIsProcessing(false)
@@ -179,12 +213,12 @@ export default function Home() {
                       />
                       <div className="flex-1">
                         <label htmlFor="bg-removal" className={`font-semibold ${useBackgroundRemoval ? 'text-green-900' : 'text-gray-900'} cursor-pointer`}>
-                          🎨 Remove Background & Add White Background
+                          🎨 Remove Background & Add White Background (Optional)
                         </label>
                         <p className={`text-sm mt-1 ${useBackgroundRemoval ? 'text-green-700' : 'text-gray-600'}`}>
                           {useBackgroundRemoval
-                            ? '✓ AI will remove the background from your product and add a clean white background. First use takes 10-30 seconds.'
-                            : 'Unchecked - Images will be used as-is without background removal.'}
+                            ? '⚡ Background removal enabled. Will process after upload (10-30 seconds).'
+                            : '✓ Fast mode - Upload images instantly! You can remove background later from the editor.'}
                         </p>
                       </div>
                     </div>
