@@ -7,11 +7,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Upload, Download, Loader2 } from 'lucide-react'
+import { Upload, Download, Loader2, Sparkles } from 'lucide-react'
 
 interface ImageEditorProps {
   imageUrl: string
   onSave: (editedImage: string, settings: EditorSettings) => void
+  onRemoveBackground?: () => void
 }
 
 export interface EditorSettings {
@@ -30,7 +31,7 @@ export interface EditorSettings {
   borderStyle: string
 }
 
-export default function ImageEditor({ imageUrl, onSave }: ImageEditorProps) {
+export default function ImageEditor({ imageUrl, onSave, onRemoveBackground }: ImageEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const logoInputRef = useRef<HTMLInputElement>(null)
 
@@ -222,14 +223,26 @@ export default function ImageEditor({ imageUrl, onSave }: ImageEditorProps) {
                 className="w-full h-full object-contain"
               />
             </div>
-            <div className="flex gap-2">
-              <Button onClick={handleDownload} variant="outline" className="flex-1">
-                <Download className="mr-2 h-4 w-4" />
-                Download
-              </Button>
-              <Button onClick={handleSave} className="flex-1">
-                Save Post
-              </Button>
+            <div className="space-y-2">
+              {onRemoveBackground && (
+                <Button
+                  onClick={onRemoveBackground}
+                  variant="outline"
+                  className="w-full border-green-300 bg-green-50 hover:bg-green-100 text-green-900"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Remove Background & Add White
+                </Button>
+              )}
+              <div className="flex gap-2">
+                <Button onClick={handleDownload} variant="outline" className="flex-1">
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </Button>
+                <Button onClick={handleSave} className="flex-1">
+                  Save Post
+                </Button>
+              </div>
             </div>
           </div>
 

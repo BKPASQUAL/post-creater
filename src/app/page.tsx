@@ -17,7 +17,7 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [activeTab, setActiveTab] = useState('create')
   const [editingPost, setEditingPost] = useState<Post | null>(null)
-  const [useBackgroundRemoval, setUseBackgroundRemoval] = useState(false)
+  const [useBackgroundRemoval, setUseBackgroundRemoval] = useState(true) // Enable by default
 
   const handleImageCapture = async (imageUrl: string, skipProcessing: boolean = false) => {
     setCurrentImage(imageUrl)
@@ -118,6 +118,24 @@ export default function Home() {
     setActiveTab('create')
   }
 
+  const handleRemoveBackground = async () => {
+    if (!currentImage) return
+
+    setIsProcessing(true)
+    setProcessedImage(null) // Clear current preview
+
+    try {
+      const processed = await removeBackgroundAndAddWhite(currentImage)
+      setProcessedImage(processed)
+    } catch (error) {
+      console.error('Failed to process image:', error)
+      alert('Failed to remove background. Please try again.')
+      setProcessedImage(currentImage) // Restore original on error
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <header className="bg-white shadow-sm border-b">
@@ -147,23 +165,23 @@ export default function Home() {
             {!currentImage && !isProcessing && (
               <>
                 <div className="max-w-2xl mx-auto mb-4">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className={`${useBackgroundRemoval ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'} border rounded-lg p-4`}>
                     <div className="flex items-start space-x-3">
                       <input
                         type="checkbox"
                         id="bg-removal"
                         checked={useBackgroundRemoval}
                         onChange={(e) => setUseBackgroundRemoval(e.target.checked)}
-                        className="mt-1 w-4 h-4 text-blue-600 rounded"
+                        className="mt-1 w-4 h-4 text-blue-600 rounded cursor-pointer"
                       />
                       <div className="flex-1">
-                        <label htmlFor="bg-removal" className="font-medium text-blue-900 cursor-pointer">
-                          Enable AI Background Removal (Slower)
+                        <label htmlFor="bg-removal" className={`font-semibold ${useBackgroundRemoval ? 'text-green-900' : 'text-gray-900'} cursor-pointer`}>
+                          🎨 Remove Background & Add White Background
                         </label>
-                        <p className="text-sm text-blue-700 mt-1">
+                        <p className={`text-sm mt-1 ${useBackgroundRemoval ? 'text-green-700' : 'text-gray-600'}`}>
                           {useBackgroundRemoval
-                            ? '⚠️ This will take 10-30 seconds on first use (downloads AI model). Uncheck for instant results.'
-                            : '✓ Fast mode enabled - Upload and edit images instantly!'}
+                            ? '✓ AI will remove the background from your product and add a clean white background. First use takes 10-30 seconds.'
+                            : 'Unchecked - Images will be used as-is without background removal.'}
                         </p>
                       </div>
                     </div>
@@ -176,12 +194,25 @@ export default function Home() {
             {isProcessing && (
               <div className="flex flex-col items-center justify-center py-12 space-y-4">
                 <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
-                <p className="text-gray-600 font-medium">
-                  Removing background with AI...
+                <p className="text-gray-900 font-semibold text-lg">
+                  🎨 Removing Background...
+                </p>
+                <p className="text-gray-600">
+                  AI is removing the background from your product
                 </p>
                 <p className="text-sm text-gray-500">
-                  This may take 10-30 seconds on first use (downloading model)
+                  First use: 10-30 seconds (downloading AI model)
                 </p>
+                <div className="max-w-md bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+                  <p className="text-sm text-blue-900">
+                    <strong>What's happening:</strong>
+                  </p>
+                  <ul className="text-sm text-blue-800 mt-2 space-y-1 list-disc list-inside">
+                    <li>AI identifies your product/item</li>
+                    <li>Removes the background completely</li>
+                    <li>Adds a clean white background</li>
+                  </ul>
+                </div>
               </div>
             )}
 
@@ -189,6 +220,7 @@ export default function Home() {
               <ImageEditor
                 imageUrl={processedImage}
                 onSave={handleSavePost}
+                onRemoveBackground={!useBackgroundRemoval ? handleRemoveBackground : undefined}
               />
             )}
           </TabsContent>
