@@ -2,27 +2,24 @@ import { removeBackground } from '@imgly/background-removal'
 
 export async function removeImageBackground(imageUrl: string): Promise<string> {
   try {
-    console.log('Starting background removal...')
+    console.log('Starting browser-based background removal...')
+    console.log('Note: This method is experimental and may fail. Consider using Remove.bg API instead.')
 
     const blob = await removeBackground(imageUrl, {
-      publicPath: 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/',
-      debug: true,
-      model: 'medium', // Use medium quality model for better results
+      publicPath: '/models/',
+      debug: false,
       output: {
         format: 'image/png',
         quality: 1.0,
         type: 'foreground',
-      },
-      progress: (key, current, total) => {
-        console.log(`Background removal progress: ${key} - ${current}/${total}`)
       }
     })
 
     console.log('Background removal completed successfully')
     return URL.createObjectURL(blob)
   } catch (error) {
-    console.error('Background removal failed:', error)
-    throw new Error('Failed to remove background: ' + (error instanceof Error ? error.message : 'Unknown error'))
+    console.error('Browser background removal failed:', error)
+    throw new Error('Browser-based background removal is not available. Please use Remove.bg API for reliable results.')
   }
 }
 

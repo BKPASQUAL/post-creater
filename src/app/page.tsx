@@ -60,7 +60,7 @@ export default function Home() {
     } catch (error) {
       console.error('All background removal methods failed:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      alert(`Background removal failed: ${errorMessage}\n\nUsing original image. You can:\n1. Get a Remove.bg API key for better results\n2. Try a different image\n3. Uncheck background removal for instant uploads`)
+      alert(`❌ Background removal failed!\n\n${errorMessage}\n\n✅ SOLUTION:\n1. Uncheck "Remove Background" and use app instantly\n2. OR: Get free Remove.bg API key (see QUICK-START.md)\n3. OR: Use remove.bg website manually first\n\nFor now, using your original image.`)
       setProcessedImage(imageUrl)
     } finally {
       setIsProcessing(false)
@@ -215,10 +215,10 @@ export default function Home() {
                         <label htmlFor="bg-removal" className={`font-semibold ${useBackgroundRemoval ? 'text-green-900' : 'text-gray-900'} cursor-pointer`}>
                           🎨 Remove Background & Add White Background (Optional)
                         </label>
-                        <p className={`text-sm mt-1 ${useBackgroundRemoval ? 'text-green-700' : 'text-gray-600'}`}>
+                        <p className={`text-sm mt-1 ${useBackgroundRemoval ? 'text-orange-700 font-medium' : 'text-gray-600'}`}>
                           {useBackgroundRemoval
-                            ? '⚡ Background removal enabled. Will process after upload (10-30 seconds).'
-                            : '✓ Fast mode - Upload images instantly! You can remove background later from the editor.'}
+                            ? '⚠️ Requires Remove.bg API key in .env.local (see QUICK-START.md). Without it, upload will fail.'
+                            : '✓ Recommended - Upload instantly and add logo/price/borders! No setup needed.'}
                         </p>
                       </div>
                     </div>

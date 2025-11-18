@@ -1,17 +1,22 @@
 # Post Creator Pro
 
-A powerful Next.js application for creating professional product posts with automatic background removal, custom branding, and price badges - perfect for e-commerce and social media marketing.
+A powerful Next.js application for creating professional product posts with custom branding and price badges - perfect for e-commerce and social media marketing.
+
+> **⚡ Quick Start:** The app works instantly without any setup! Background removal is **optional** and requires API key. See [QUICK-START.md](QUICK-START.md) for the simplest way to get started.
 
 ## Features
 
+**Core Features (No Setup Required):**
 - 📸 **Camera Capture & Upload**: Take photos directly or upload images
-- 🎨 **Background Removal**: Automatic background removal with white background
 - 🏢 **Company Logo**: Add your company logo to the top-left corner
 - 💰 **Price Badge**: Add customizable price badges to the bottom-right
 - 🖼️ **Border Customization**: Add borders with custom colors and widths
 - 📱 **Responsive Design**: Works seamlessly on mobile, tablet, and desktop
 - 💾 **Post Management**: View, edit, and manage all your posts
-- ☁️ **Cloud Storage**: All images stored securely in Supabase
+
+**Optional Features (Require Setup):**
+- 🎨 **Background Removal**: Automatic background removal (requires Remove.bg API key)
+- ☁️ **Cloud Storage**: Store posts in Supabase (requires Supabase account)
 
 ## Tech Stack
 
