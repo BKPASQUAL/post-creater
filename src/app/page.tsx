@@ -17,13 +17,21 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [activeTab, setActiveTab] = useState('create')
   const [editingPost, setEditingPost] = useState<Post | null>(null)
+  const [useBackgroundRemoval, setUseBackgroundRemoval] = useState(false)
 
-  const handleImageCapture = async (imageUrl: string) => {
+  const handleImageCapture = async (imageUrl: string, skipProcessing: boolean = false) => {
     setCurrentImage(imageUrl)
+
+    // Skip background removal for faster workflow
+    if (skipProcessing || !useBackgroundRemoval) {
+      setProcessedImage(imageUrl)
+      return
+    }
+
     setIsProcessing(true)
 
     try {
-      // Remove background and add white background
+      // Remove background and add white background (slow AI process)
       const processed = await removeBackgroundAndAddWhite(imageUrl)
       setProcessedImage(processed)
     } catch (error) {
@@ -137,14 +145,42 @@ export default function Home() {
 
           <TabsContent value="create" className="space-y-6">
             {!currentImage && !isProcessing && (
-              <ImageCapture onImageCapture={handleImageCapture} />
+              <>
+                <div className="max-w-2xl mx-auto mb-4">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-start space-x-3">
+                      <input
+                        type="checkbox"
+                        id="bg-removal"
+                        checked={useBackgroundRemoval}
+                        onChange={(e) => setUseBackgroundRemoval(e.target.checked)}
+                        className="mt-1 w-4 h-4 text-blue-600 rounded"
+                      />
+                      <div className="flex-1">
+                        <label htmlFor="bg-removal" className="font-medium text-blue-900 cursor-pointer">
+                          Enable AI Background Removal (Slower)
+                        </label>
+                        <p className="text-sm text-blue-700 mt-1">
+                          {useBackgroundRemoval
+                            ? '⚠️ This will take 10-30 seconds on first use (downloads AI model). Uncheck for instant results.'
+                            : '✓ Fast mode enabled - Upload and edit images instantly!'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <ImageCapture onImageCapture={handleImageCapture} />
+              </>
             )}
 
             {isProcessing && (
               <div className="flex flex-col items-center justify-center py-12 space-y-4">
                 <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
-                <p className="text-gray-600">
-                  Processing image and removing background...
+                <p className="text-gray-600 font-medium">
+                  Removing background with AI...
+                </p>
+                <p className="text-sm text-gray-500">
+                  This may take 10-30 seconds on first use (downloading model)
                 </p>
               </div>
             )}
